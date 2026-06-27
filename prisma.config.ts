@@ -11,8 +11,6 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  datasource: {
-    url: process.env["DATABASE_URL"],
-    directUrl: process.env["DIRECT_URL"],
-  },
+  // Connection URLs (incl. directUrl) live in the schema's datasource block —
+  // prisma.config's datasource type doesn't accept directUrl.
 });
