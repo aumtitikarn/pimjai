@@ -92,7 +92,10 @@ export async function POST(request: Request) {
       .catch(() => {});
 
     return NextResponse.json({ pin: rows[0] }, { status: 201 });
-  } catch {
+  } catch (error) {
+    // Surface the real DB error in the server logs so production 500s are
+    // diagnosable (the client still gets a generic message).
+    console.error("[POST /api/pins] insert failed:", error);
     return NextResponse.json({ error: "Could not drop the pin." }, { status: 500 });
   }
 }

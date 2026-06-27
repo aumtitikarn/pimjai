@@ -7,7 +7,7 @@
     "predev": "node scripts/copy-cesium.mjs",
     "prebuild": "node scripts/copy-cesium.mjs",
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
