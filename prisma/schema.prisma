@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Mood {
+  pink
+  black
+  yellow
+}
+
+enum ReactionType {
+  pat
+  hug
+  agree
+}
+
+model Pin {
+  id        String    @id @default(uuid())
+  text      String
+  lat       Float
+  lng       Float
+  mood      Mood      @default(pink)
+  // Per-letter personalisation, layered on top of mood. Null = use the mood's
+  // default emoji/colour. emoji shows on the map pin + popup; color drives the
+  // pin bubble and the share-card background.
+  emoji     String?
+  color     String?
+  isLocked  Boolean   @default(false) @map("is_locked")
+  hint      String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  ownerId   String?   @map("owner_id")
+  expiresAt DateTime? @map("expires_at")
+  // Public author attribution, set only when a signed-in user opts to reveal
+  // their identity. Distinct from owner_id (which stays private and drives
+  // delete control). Null = anonymous letter.
+  authorName   String? @map("author_name")
+  authorAvatar String? @map("author_avatar")
+  // Denormalized reaction tallies, kept in sync by POST /api/pins/[id]/react.
+  // Public-readable so the map can glow without N aggregate queries. agreeCount
+  // drives the gold "glow" tier.
+  patCount   Int @default(0) @map("pat_count")
+  hugCount   Int @default(0) @map("hug_count")
+  agreeCount Int @default(0) @map("agree_count")
+
+  reactions PinReaction[]
+
+  @@index([expiresAt])
+  @@map("pins")
+}
+
+/// One vote of one type on one letter by one voter. The composite primary key
+/// (pin + voter + type) makes a vote idempotent and lets a tap toggle off.
+/// voterId is a LINE userId when signed in, else an anonymous per-browser cookie.
+model PinReaction {
+  pinId     String       @map("pin_id")
+  voterId   String       @map("voter_id")
+  type      ReactionType
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  pin Pin @relation(fields: [pinId], references: [id], onDelete: Cascade)
+
+  @@id([pinId, voterId, type])
+  @@index([pinId])
+  @@map("pin_reactions")
+}
+
+/// Editable member profile, keyed by LINE userId. Overrides the display name and
+/// adds a bio; the avatar stays the LINE picture (not stored here).
+model Profile {
+  lineUserId  String   @id @map("line_user_id")
+  displayName String?  @map("display_name")
+  bio         String?
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  @@map("profiles")
+}
+
+/// A ping for a letter owner when someone reacts to their letter. Only members
+/// (letters with a non-null owner_id) ever receive these.
+model Notification {
+  id          String   @id @default(uuid())
+  recipientId String   @map("recipient_id")
+  pinId       String   @map("pin_id")
+  actorName   String?  @map("actor_name")
+  reaction    String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([recipientId, createdAt])
+  @@map("notifications")
+}

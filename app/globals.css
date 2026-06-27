@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b1220;
+  --foreground: #0f172a;
+  /* Height reserved at the bottom for the credit footer, so the map (and its
+     Cesium attribution) end above it instead of being covered. */
+  --footer-h: 52px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  background: var(--background);
+}
+
+body {
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Globe shell — fills the viewport but stops above the footer so nothing the map
+   draws (e.g. the Cesium attribution) gets hidden behind it. */
+.pimjai-map-shell {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--footer-h);
+}
+
+/* ---------- Light glass card (shared chrome) ---------- */
+.pimjai-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: #0f172a;
+}
+
+/* Popup overlay tail pointing down to the pin */
+.pimjai-card-tail {
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 10px solid rgba(255, 255, 255, 0.82);
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.08));
+}
+
+/* ---------- Cesium widget chrome ---------- */
+.cesium-viewer-bottom {
+  bottom: 4px !important;
+}
+.cesium-widget-credits {
+  font-size: 10px !important;
+  opacity: 0.7;
+}
+.cesium-viewer,
+.cesium-widget,
+.cesium-widget canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Animations ---------- */
+@keyframes pimjai-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
+.pimjai-shake {
+  animation: pimjai-shake 0.4s ease;
+}
+
+@keyframes pimjai-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.pimjai-fade-in {
+  animation: pimjai-fade-in 0.35s ease;
+}
+
+@keyframes pimjai-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.pimjai-pop {
+  animation: pimjai-pop 0.2s ease;
+}
+
+/* Respect reduced-motion: collapse entrance/feedback animations to instant. */
+@media (prefers-reduced-motion: reduce) {
+  .pimjai-shake,
+  .pimjai-fade-in,
+  .pimjai-pop {
+    animation: none;
+  }
+}

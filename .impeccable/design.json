@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-27T00:00:00.000Z",
+  "title": "Design System: Pimjai",
+  "extensions": {
+    "colorMeta": {
+      "globe-night": { "role": "neutral", "displayName": "Globe Night", "canonical": "#0b1220", "tonalRamp": ["#05080f", "#0b1220", "#141d30", "#1f2a44", "#33415e", "#4d5d7e", "#7689a8", "#aab6cc"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#0f172a", "tonalRamp": ["#020617", "#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1"] },
+      "accent-fuchsia": { "role": "primary", "displayName": "Fuchsia Pulse", "canonical": "#d946ef", "tonalRamp": ["#4a044e", "#701a75", "#86198f", "#a21caf", "#c026d3", "#d946ef", "#e879f9", "#f5d0fe"] },
+      "mood-pink": { "role": "secondary", "displayName": "Romance Pink", "canonical": "#ff2d9d", "tonalRamp": ["#4d0030", "#7a004c", "#a30066", "#cc0080", "#ff2d9d", "#ff5cb3", "#ff7ad9", "#ffc4ec"] },
+      "mood-black": { "role": "secondary", "displayName": "Venting Black", "canonical": "#0d0a16", "tonalRamp": ["#0d0a16", "#181227", "#241a3d", "#352656", "#4a3675", "#6a52a0", "#9c8cc9", "#c9b8ff"] },
+      "mood-yellow": { "role": "secondary", "displayName": "Memes Yellow", "canonical": "#ffe14d", "tonalRamp": ["#3d3300", "#665600", "#998200", "#ccae00", "#ffe14d", "#ffe978", "#fff6c4", "#fffbe6"] },
+      "draft-cyan": { "role": "tertiary", "displayName": "Draft Cyan", "canonical": "#19d3c5", "tonalRamp": ["#04332f", "#06504a", "#097068", "#0c9488", "#11b8a8", "#19d3c5", "#5fe8dd", "#b3f5ef"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Share-card message text — the most important words in the product." },
+      "headline": { "displayName": "Headline", "purpose": "Card titles, one per panel." },
+      "body": { "displayName": "Body", "purpose": "Popup text, hints, helper copy." },
+      "label": { "displayName": "Label", "purpose": "Status chips, mood labels, counters, share-card eyebrow." },
+      "brand": { "displayName": "Brand", "purpose": "The พิมพ์ใจ · Pimjai wordmark only." }
+    },
+    "shadows": [
+      { "name": "card-lift", "value": "0 10px 30px rgba(0,0,0,0.25)", "purpose": "Standard float for popups, drop form, search results." },
+      { "name": "search-rest", "value": "0 8px 20px rgba(0,0,0,0.18)", "purpose": "Lighter lift for the always-present search bar and brand pill." },
+      { "name": "warp-glow", "value": "0 0 25px rgba(157,77,255,0.6)", "purpose": "The single colored glow — warp CTA only." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "ease", "purpose": "Default easing for card fade-in, pop, and state transitions." },
+      { "name": "shake", "value": "pimjai-shake 0.4s ease", "purpose": "Wrong-password feedback on the unlock popup." },
+      { "name": "fade-in", "value": "pimjai-fade-in 0.35s ease", "purpose": "Card and revealed-text entrance; must enhance already-visible content." },
+      { "name": "pop", "value": "pimjai-pop 0.2s ease", "purpose": "Marker / element appearance." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Glass Card",
+      "kind": "card",
+      "refersTo": "card-glass",
+      "description": "The universal chrome material — every popup, form, search bar, and pill is built from this floating light-glass.",
+      "html": "<div class=\"ds-card-glass\"><h2 class=\"ds-card-title\">Drop a message ✨</h2><p class=\"ds-card-body\">What's on your mind at this exact spot?</p></div>",
+      "css": ".ds-card-glass { background: rgba(255,255,255,0.82); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); border: 1px solid rgba(255,255,255,0.6); border-radius: 24px; padding: 20px; color: #0f172a; box-shadow: 0 10px 30px rgba(0,0,0,0.25); max-width: 360px; } .ds-card-title { font-family: 'Geist Sans', system-ui, sans-serif; font-weight: 700; font-size: 1.125rem; margin: 0 0 8px; } .ds-card-body { font-size: 0.875rem; line-height: 1.45; color: #334155; margin: 0; }"
+    },
+    {
+      "name": "Submit Button",
+      "kind": "button",
+      "refersTo": "button-submit",
+      "description": "The only filled-accent button — the high-commitment 'drop' / 'crack' action.",
+      "html": "<button class=\"ds-btn-submit\">Drop it here 📍</button>",
+      "css": ".ds-btn-submit { font-family: 'Geist Sans', system-ui, sans-serif; font-weight: 700; font-size: 0.95rem; color: #fff; background: linear-gradient(90deg, #06b6d4, #d946ef, #9333ea); border: none; border-radius: 12px; padding: 12px 16px; width: 100%; box-shadow: 0 8px 20px rgba(217,70,239,0.30); cursor: pointer; transition: transform 0.15s ease, opacity 0.15s ease; } .ds-btn-submit:hover { transform: translateY(-1px); } .ds-btn-submit:active { transform: scale(0.98); } .ds-btn-submit:focus-visible { outline: 2px solid #e879f9; outline-offset: 2px; } .ds-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Warp Button",
+      "kind": "button",
+      "refersTo": "button-submit",
+      "description": "Signature CTA — teleports to a random stranger's pin. The one permitted neon-glow object.",
+      "html": "<button class=\"ds-btn-warp\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m18 14 4 4-4 4\"/><path d=\"m18 2 4 4-4 4\"/><path d=\"M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22\"/><path d=\"M2 6h1.972a4 4 0 0 1 3.6 2.2\"/><path d=\"M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45\"/></svg><span>Warp to a Stranger's Mind</span></button>",
+      "css": ".ds-btn-warp { display: inline-flex; align-items: center; gap: 8px; font-family: 'Geist Sans', system-ui, sans-serif; font-weight: 700; color: #fff; background: linear-gradient(90deg, #22d3ee, #d946ef, #9333ea); border: none; border-radius: 9999px; padding: 12px 16px; box-shadow: 0 0 25px rgba(157,77,255,0.6); cursor: pointer; transition: transform 0.15s ease; } .ds-btn-warp:active { transform: scale(0.95); } .ds-btn-warp:focus-visible { outline: 2px solid #fff; outline-offset: 2px; } .ds-btn-warp:disabled { opacity: 0.4; cursor: not-allowed; }"
+    },
+    {
+      "name": "Glass Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Translucent text field on glass; focus shifts the border to Fuchsia Soft, no heavy glow.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"6-character password\" />",
+      "css": ".ds-input { width: 100%; box-sizing: border-box; font-family: 'Geist Sans', system-ui, sans-serif; font-size: 0.875rem; color: #1e293b; background: rgba(255,255,255,0.70); border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; outline: none; transition: border-color 0.15s ease; } .ds-input::placeholder { color: #94a3b8; } .ds-input:focus { border-color: #e879f9; }"
+    },
+    {
+      "name": "Search Pill",
+      "kind": "nav",
+      "refersTo": "card-glass",
+      "description": "Always-present floating search bar — the primary way to travel the globe by place name.",
+      "html": "<div class=\"ds-search\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#64748b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input class=\"ds-search-input\" placeholder=\"Search a place… (e.g. Tokyo Tower)\" /></div>",
+      "css": ".ds-search { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.82); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); border: 1px solid rgba(255,255,255,0.6); border-radius: 9999px; padding: 10px 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.18); max-width: 28rem; } .ds-search-input { flex: 1; border: none; background: transparent; outline: none; font-family: 'Geist Sans', system-ui, sans-serif; font-size: 0.875rem; color: #1e293b; } .ds-search-input::placeholder { color: #94a3b8; }"
+    },
+    {
+      "name": "Mood Tile",
+      "kind": "chip",
+      "refersTo": "mood-tile",
+      "description": "Mood selector in the drop form — selected state shows a colored ring. Mood color stays on the message, so the tile itself is neutral until chosen.",
+      "html": "<div class=\"ds-mood-row\"><button class=\"ds-mood ds-mood--on\"><span class=\"ds-mood-emoji\">💗</span><span class=\"ds-mood-label\">Romance</span></button><button class=\"ds-mood\"><span class=\"ds-mood-emoji\">🖤</span><span class=\"ds-mood-label\">Venting</span></button><button class=\"ds-mood\"><span class=\"ds-mood-emoji\">💛</span><span class=\"ds-mood-label\">Memes</span></button></div>",
+      "css": ".ds-mood-row { display: flex; gap: 12px; } .ds-mood { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: rgba(255,255,255,0.6); border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 0; cursor: pointer; transition: box-shadow 0.15s ease; } .ds-mood-emoji { font-size: 1.5rem; } .ds-mood-label { font-size: 10px; font-weight: 600; color: #64748b; } .ds-mood--on { box-shadow: 0 0 0 2px #f472b6; } .ds-mood:focus-visible { outline: 2px solid #e879f9; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "button-ghost",
+      "description": "Read-only lock-state indicator. Color is the chip; no background.",
+      "html": "<span class=\"ds-status ds-status--locked\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/></svg> locked</span>",
+      "css": ".ds-status { display: inline-flex; align-items: center; gap: 4px; font-family: 'Geist Sans', system-ui, sans-serif; font-size: 0.75rem; font-weight: 600; } .ds-status--locked { color: #c026d3; } .ds-status--unlocked { color: #059669; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Lit Windows in a Dark City",
+    "overview": "Pimjai is a single, full-bleed 3D globe rendered at night, and everything else is a small lit window glowing on its surface. The globe is the dark enormous city; each message a stranger left is a warm rectangle of light you can press your face against. That contrast — vast cold dark against small warm intimate — is the design. The system commits to floating glass over real depth: chrome is built from translucent light-glass cards that lift off the canvas with soft blur and shadow, while the live 3D scene supplies the actual depth. Saturation is rationed hard — night-navy and cool slate neutrals everywhere, and the only fully saturated color belongs to a message's mood. The words carry the hue; the UI never competes for it.",
+    "keyCharacteristics": [
+      "One full-screen globe; UI floats over it and recedes.",
+      "Night-navy + cool-slate neutral chrome; mood color is the only saturation.",
+      "Light-glass cards (blur + soft shadow) as the universal chrome material.",
+      "Soft, tender geometry: generous radii (12–24px), no hard corners.",
+      "Expressive effects (warp glow, brand gradient) are rare punctuation, not wallpaper."
+    ],
+    "rules": [
+      { "name": "The Message Owns The Color Rule", "body": "Saturated mood color belongs to the message and its share card — full stop. Chrome stays night-navy + slate neutral, accented only by Fuchsia Pulse. If a button, panel, or background carries a mood gradient, it is wrong.", "section": "colors" },
+      { "name": "The Rationed Neon Rule", "body": "The cyan→fuchsia→amber brand gradient and the warp button's purple glow are the only sanctioned multi-stop neon, each appearing exactly once. Neon gradient anywhere else reads as web3 hype and is forbidden.", "section": "colors" },
+      { "name": "The One Family Rule", "body": "Geist Sans does all the work; Geist Mono only for raw coordinates. Never a third typeface or display serif — the restraint lets the message feel personal rather than packaged.", "section": "typography" },
+      { "name": "The Glass-Or-Nothing Rule", "body": "Chrome is either floating glass (blur ≥14px, translucency 0.82, soft shadow) or it does not exist. No opaque white panels, no hard-edged solid cards.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep the globe the loudest thing on screen. Chrome recedes; a stranger's words win.",
+      "Do reserve all saturated color for the message and its mood — pink #ff2d9d, black #0d0a16, yellow #ffe14d. Chrome stays night-navy + slate.",
+      "Do build every piece of chrome as floating glass (blur ≥14px, rgba(255,255,255,0.82), soft shadow).",
+      "Do keep accent to Fuchsia Pulse on interactive chrome, used sparingly.",
+      "Do reveal pins one at a time, by chance. Serendipity over density.",
+      "Do give every animation a prefers-reduced-motion fallback — the warp camera-fly especially must degrade to an instant cut.",
+      "Do pair mood with an icon/label, never color alone, for color-blind users.",
+      "Do verify glass-card body text and placeholders clear 4.5:1 over bright globe regions; bump slate-400 → slate-500 if a measure fails."
+    ],
+    "donts": [
+      "Don't build anything resembling a cluttered social feed — no timelines, counts, likes, follows, badges, leaderboards, trending, profiles, or notification noise.",
+      "Don't let the neon brand gradient or warp glow spread beyond their two sanctioned homes (the wordmark; the warp CTA).",
+      "Don't put mood color on chrome — no mood-gradient buttons, panels, or backgrounds.",
+      "Don't ship opaque flat panels or hard-edged solid cards; it breaks the floating-glass illusion.",
+      "Don't introduce a second typeface or a display serif. Geist in many weights only.",
+      "Don't use light-gray body text 'for elegance' on the bright glass — it fails contrast and reads as AI default.",
+      "Don't gate content visibility behind a class-triggered reveal; the fade-in animations must enhance already-visible content."
+    ]
+  }
+}
