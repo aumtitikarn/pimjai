@@ -14,10 +14,68 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://pimjai.itstudentservice.com";
+
 export const metadata: Metadata = {
-  title: "Pimjai (พิมพ์ใจ) — Drop a message anywhere on Earth",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "พิมพ์ใจ (Pimjai) — ฝากข้อความถึงใครก็ได้บนแผนที่โลก",
+    template: "%s · พิมพ์ใจ (Pimjai)",
+  },
   description:
-    "Anonymously drop text messages and password-locked secrets anywhere on the global map.",
+    "ฝากข้อความและความลับที่ล็อกด้วยรหัสผ่านไว้บนแผนที่โลกแบบไม่ระบุตัวตน ปักหมุดข้อความไว้ที่ไหนก็ได้บนโลก แล้วแชร์ให้คนทั้งโลกได้อ่าน",
+  applicationName: "พิมพ์ใจ",
+  keywords: [
+    "พิมพ์ใจ",
+    "Pimjai",
+    "ฝากข้อความบนแผนที่",
+    "ปักหมุดข้อความ",
+    "ฝากข้อความถึงคนที่รัก",
+    "ส่งข้อความลับ",
+    "ข้อความล็อกรหัสผ่าน",
+    "แผนที่ฝากข้อความ",
+    "ฝากข้อความไม่ระบุตัวตน",
+    "anonymous map message",
+    "drop a message on a map",
+  ],
+  authors: [{ name: "พิมพ์ใจ" }],
+  creator: "พิมพ์ใจ",
+  publisher: "พิมพ์ใจ",
+  category: "social",
+  alternates: {
+    canonical: "/",
+    languages: {
+      "th-TH": "/",
+    },
+  },
+  openGraph: {
+    type: "website",
+    url: siteUrl,
+    siteName: "พิมพ์ใจ (Pimjai)",
+    title: "พิมพ์ใจ (Pimjai) — ฝากข้อความถึงใครก็ได้บนแผนที่โลก",
+    description:
+      "ฝากข้อความและความลับที่ล็อกด้วยรหัสผ่านไว้บนแผนที่โลกแบบไม่ระบุตัวตน ปักหมุดข้อความไว้ที่ไหนก็ได้บนโลก แล้วแชร์ให้คนทั้งโลกได้อ่าน",
+    locale: "th_TH",
+    alternateLocale: ["en_US"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "พิมพ์ใจ (Pimjai) — ฝากข้อความถึงใครก็ได้บนแผนที่โลก",
+    description:
+      "ฝากข้อความและความลับที่ล็อกด้วยรหัสผ่านไว้บนแผนที่โลกแบบไม่ระบุตัวตน",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export const viewport: Viewport = {
@@ -35,7 +93,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="th"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-900 overflow-hidden">

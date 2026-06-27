@@ -26,8 +26,10 @@ export function useNotifications(enabled: boolean) {
   const query = useQuery({
     queryKey: NOTIFICATIONS_KEY,
     enabled,
-    refetchInterval: enabled ? 30_000 : false,
-    refetchOnWindowFocus: true,
+    // Poll gently — every 60s, only while the tab is visible (the default
+    // refetchIntervalInBackground is false) — to keep server load low.
+    refetchInterval: enabled ? 60_000 : false,
+    refetchOnWindowFocus: false,
     queryFn: async (): Promise<NotificationsResponse> => {
       const res = await fetch("/api/notifications", { cache: "no-store" });
       if (!res.ok) return { notifications: [], unread: 0 };
