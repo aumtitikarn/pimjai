@@ -13,16 +13,44 @@ interface SearchBoxProps {
   onSelect: (result: SearchResult) => void;
 }
 
-interface NominatimItem {
-  display_name: string;
-  lat: string;
-  lon: string;
-  place_id: number;
+/**
+ * Photon (komoot) returns GeoJSON. Unlike Nominatim it does typo-tolerant,
+ * prefix/as-you-type matching, so a small misspelling still finds the place.
+ */
+interface PhotonFeature {
+  geometry: { coordinates: [number, number] }; // [lng, lat]
+  properties: {
+    osm_id?: number;
+    osm_type?: string;
+    name?: string;
+    street?: string;
+    housenumber?: string;
+    district?: string;
+    city?: string;
+    county?: string;
+    state?: string;
+    country?: string;
+  };
+}
+
+/** Human-readable address line, e.g. "Tokyo Tower, Minato, Tokyo, Japan". */
+function describe(f: PhotonFeature): string {
+  const p = f.properties;
+  const parts = [
+    [p.housenumber, p.street].filter(Boolean).join(" ") || p.name,
+    p.district,
+    p.city,
+    p.county,
+    p.state,
+    p.country,
+  ].filter(Boolean) as string[];
+  // Collapse consecutive duplicates (e.g. name === city for a city result).
+  return parts.filter((part, i) => part !== parts[i - 1]).join(", ");
 }
 
 export default function SearchBox({ onSelect }: SearchBoxProps) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<NominatimItem[]>([]);
+  const [results, setResults] = useState<PhotonFeature[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -39,12 +67,12 @@ export default function SearchBox({ onSelect }: SearchBoxProps) {
       setLoading(true);
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&q=${encodeURIComponent(q)}`,
+          `https://photon.komoot.io/api/?limit=6&q=${encodeURIComponent(q)}`,
           { signal: controller.signal, headers: { Accept: "application/json" } },
         );
         if (!res.ok) throw new Error("search failed");
-        const data: NominatimItem[] = await res.json();
-        setResults(data);
+        const data: { features?: PhotonFeature[] } = await res.json();
+        setResults(data.features ?? []);
         setOpen(true);
       } catch {
         // ignore aborted/failed lookups
@@ -70,13 +98,15 @@ export default function SearchBox({ onSelect }: SearchBoxProps) {
     return () => document.removeEventListener("mousedown", handle);
   }, []);
 
-  function choose(item: NominatimItem) {
+  function choose(item: PhotonFeature) {
+    const full = describe(item);
+    const [lng, lat] = item.geometry.coordinates;
     onSelect({
-      label: item.display_name.split(",").slice(0, 2).join(", "),
-      lat: parseFloat(item.lat),
-      lng: parseFloat(item.lon),
+      label: full.split(",").slice(0, 2).join(", "),
+      lat,
+      lng,
     });
-    setQuery(item.display_name.split(",")[0]);
+    setQuery(item.properties.name || full.split(",")[0]);
     setOpen(false);
   }
 
@@ -108,14 +138,14 @@ export default function SearchBox({ onSelect }: SearchBoxProps) {
 
       {open && results.length > 0 && (
         <ul className="pimjai-card absolute left-0 right-0 top-full mt-2 max-h-72 overflow-y-auto rounded-2xl py-1 shadow-xl">
-          {results.map((item) => (
-            <li key={item.place_id}>
+          {results.map((item, i) => (
+            <li key={`${item.properties.osm_type ?? "x"}${item.properties.osm_id ?? i}`}>
               <button
                 onClick={() => choose(item)}
                 className="flex w-full items-start gap-2 px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-fuchsia-500/10"
               >
                 <MapPin size={15} className="mt-0.5 shrink-0 text-fuchsia-500" />
-                <span className="line-clamp-2">{item.display_name}</span>
+                <span className="line-clamp-2">{describe(item)}</span>
               </button>
             </li>
           ))}

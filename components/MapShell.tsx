@@ -66,7 +66,10 @@ export default function MapShell() {
   function handleSearchSelect(result: SearchResult) {
     setDraftPosition(null);
     setFocusPinId(null);
-    setFlyTarget({ lat: result.lat, lng: result.lng, height: 4000, nonce: Date.now() });
+    // Look straight down (like handleLocate) so the searched place lands dead-centre
+    // — an angled pitch leaves it off-screen toward the bottom. Closer height too,
+    // so it actually arrives on the spot instead of a wide overview.
+    setFlyTarget({ lat: result.lat, lng: result.lng, height: 550, pitch: -90, nonce: Date.now() });
   }
 
   function handleViewMyLetter(pin: Pin) {

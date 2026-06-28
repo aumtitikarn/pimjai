@@ -26,17 +26,10 @@ import { useReplies, useCreateReply, useDeleteReply } from "@/hooks/useReplies";
 import { useAuth, startLineLogin } from "@/hooks/useAuth";
 import { REPLY_MAX_LEN } from "@/schemas/replySchema";
 import ShareDialog from "./ShareDialog";
+import RepliesDialog, { ReplyItem } from "./RepliesDialog";
 
-/** Short Thai relative time, e.g. "5 นาทีที่แล้ว". */
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const min = Math.floor(diff / 60_000);
-  if (min < 1) return "เมื่อสักครู่";
-  if (min < 60) return `${min} นาทีที่แล้ว`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr} ชม.ที่แล้ว`;
-  return `${Math.floor(hr / 24)} วันที่แล้ว`;
-}
+/** How many replies to preview inline before "ดูทั้งหมด". */
+const REPLY_PREVIEW = 3;
 
 /** Sent date + time, e.g. "28 มิ.ย. 69 14:30". */
 function formatSentAt(iso: string): string {
@@ -96,7 +89,10 @@ export default function PinPopup({ pin, onClose }: { pin: Pin; onClose?: () => v
   const deleteReply = useDeleteReply(pin.id);
   const [replyText, setReplyText] = useState("");
   const [revealReply, setRevealReply] = useState(false);
+  const [repliesOpen, setRepliesOpen] = useState(false);
   const replyList = replies.data ?? [];
+  // Preview only the latest few inline; the rest live behind "ดูทั้งหมด".
+  const previewReplies = replyList.slice(-REPLY_PREVIEW);
 
   const isUnlocked = !pin.is_locked || decrypted !== null;
   const displayText = pin.is_locked ? decrypted ?? "" : pin.text;
@@ -264,41 +260,16 @@ export default function PinPopup({ pin, onClose }: { pin: Pin; onClose?: () => v
 
           {replyList.length > 0 && (
             <div className="mb-2 flex flex-col gap-2">
-              {replyList.map((r) => (
-                <div key={r.id} className="flex items-start gap-2">
-                  {r.author_avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={r.author_avatar}
-                      alt=""
-                      className="mt-0.5 h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-black/10"
-                    />
-                  ) : (
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-500">
-                      {r.author_name ? r.author_name.trim().charAt(0).toUpperCase() : "🕊️"}
-                    </span>
-                  )}
-                  <div className="min-w-0 flex-1 rounded-xl bg-slate-50 px-2.5 py-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-[11px] font-semibold text-slate-600">
-                        {r.author_name ?? "นิรนาม"}
-                      </span>
-                      <span className="flex shrink-0 items-center gap-1.5">
-                        <span className="text-[10px] text-slate-400">{timeAgo(r.created_at)}</span>
-                        {r.is_mine && (
-                          <button
-                            onClick={() => deleteReply.mutate(r.id)}
-                            aria-label="ลบคำตอบ"
-                            className="text-slate-300 transition hover:text-red-500"
-                          >
-                            <Trash2 size={11} />
-                          </button>
-                        )}
-                      </span>
-                    </div>
-                    <p className="break-words text-xs leading-snug text-slate-800">{r.text}</p>
-                  </div>
-                </div>
+              {replyList.length > REPLY_PREVIEW && (
+                <button
+                  onClick={() => setRepliesOpen(true)}
+                  className="self-start text-[11px] font-semibold text-fuchsia-600 transition hover:text-fuchsia-700"
+                >
+                  ดูทั้งหมด {replyList.length} คำตอบ
+                </button>
+              )}
+              {previewReplies.map((r) => (
+                <ReplyItem key={r.id} reply={r} onDelete={(id) => deleteReply.mutate(id)} />
               ))}
             </div>
           )}
@@ -407,6 +378,13 @@ export default function PinPopup({ pin, onClose }: { pin: Pin; onClose?: () => v
           )}
         </div>
       )}
+
+      <RepliesDialog
+        open={repliesOpen}
+        onClose={() => setRepliesOpen(false)}
+        replies={replyList}
+        onDelete={(id) => deleteReply.mutate(id)}
+      />
 
       <ShareDialog
         open={shareOpen}
