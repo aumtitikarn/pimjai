@@ -8,12 +8,6 @@ import { useCreatePin } from "@/hooks/usePins";
 import { useAuth } from "@/hooks/useAuth";
 import PostConfirmDialog from "./PostConfirmDialog";
 
-const MOODS: { value: Mood; emoji: string; label: string; ring: string }[] = [
-  { value: "pink", emoji: "💗", label: "Romance", ring: "ring-pink-400" },
-  { value: "black", emoji: "🖤", label: "Venting", ring: "ring-purple-400" },
-  { value: "yellow", emoji: "💛", label: "Memes", ring: "ring-yellow-300" },
-];
-
 /** Quick-pick emojis for the letter pin. The author can also type their own. */
 const EMOJI_CHOICES = [
   "💗", "🖤", "💛", "😀", "😭", "🥹", "😡", "🤣",
@@ -34,18 +28,12 @@ interface PinFormProps {
 
 export default function PinForm({ position, onClose, onSubmitted }: PinFormProps) {
   const [text, setText] = useState("");
-  const [mood, setMood] = useState<Mood>("pink");
-  // Custom emoji + colour, seeded from the chosen category's defaults. Picking a
-  // category resets them; the author can then override either one.
+  // Mood categories were removed from the UI; every letter is stored under a
+  // single default mood. The author picks the emoji + colour directly below.
+  const mood: Mood = "pink";
   const [emoji, setEmoji] = useState(MOOD_DEFAULTS.pink.emoji);
   const [color, setColor] = useState(MOOD_DEFAULTS.pink.color);
   const [isLocked, setIsLocked] = useState(false);
-
-  function selectMood(value: Mood) {
-    setMood(value);
-    setEmoji(MOOD_DEFAULTS[value].emoji);
-    setColor(MOOD_DEFAULTS[value].color);
-  }
   const [password, setPassword] = useState("");
   const [hint, setHint] = useState("");
   // Author choices, only meaningful (and shown) for signed-in users — anonymous
@@ -135,22 +123,6 @@ export default function PinForm({ position, onClose, onSubmitted }: PinFormProps
         <div className="mt-1 flex justify-between text-xs text-slate-500">
           <span>{errors.text && <span className="text-red-500">{errors.text}</span>}</span>
           <span>{text.length}/150</span>
-        </div>
-
-        <p className="mt-4 mb-1.5 text-xs font-semibold text-slate-500">หมวดอารมณ์</p>
-        <div className="flex gap-3">
-          {MOODS.map((m) => (
-            <button
-              key={m.value}
-              onClick={() => selectMood(m.value)}
-              className={`flex flex-1 flex-col items-center gap-1 rounded-xl border border-slate-200 bg-white/60 py-2 transition ${
-                mood === m.value ? `ring-2 ${m.ring}` : ""
-              }`}
-            >
-              <span className="text-2xl">{m.emoji}</span>
-              <span className="text-[10px] text-slate-500">{m.label}</span>
-            </button>
-          ))}
         </div>
 
         {/* Custom emoji — preset grid + free input */}

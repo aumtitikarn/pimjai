@@ -14,10 +14,12 @@ interface MyLettersDialogProps {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("th-TH", {
+  return new Date(iso).toLocaleString("th-TH", {
     day: "numeric",
     month: "short",
     year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 

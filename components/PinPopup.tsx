@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, Share2, Link as LinkIcon, Check, Unlock, X, Trash2 } from "lucide-react";
+import { Lock, Share2, Link as LinkIcon, Check, Unlock, X, Trash2, Clock } from "lucide-react";
 import { type Pin, type ReactionType, pinColor, pinEmoji } from "@/schemas/pinSchema";
 import { decryptMessage } from "@/utils/crypto";
 import { reverseGeocode } from "@/utils/geocode";
@@ -12,6 +12,17 @@ import {
   useToggleReaction,
 } from "@/hooks/usePins";
 import ShareDialog from "./ShareDialog";
+
+/** Sent date + time, e.g. "28 มิ.ย. 69 14:30". */
+function formatSentAt(iso: string): string {
+  return new Date(iso).toLocaleString("th-TH", {
+    day: "numeric",
+    month: "short",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 const REACTIONS: { type: ReactionType; emoji: string; label: string }[] = [
   { type: "pat", emoji: "🫶", label: "ตบบ่า" },
@@ -158,6 +169,12 @@ export default function PinPopup({ pin, onClose }: { pin: Pin; onClose?: () => v
         </div>
       ) : (
         <p className="pimjai-fade-in leading-snug break-words text-slate-800">{displayText}</p>
+      )}
+
+      {pin.created_at && (
+        <p className="mt-2 flex items-center gap-1 text-[11px] text-slate-400">
+          <Clock size={11} /> ส่งเมื่อ {formatSentAt(pin.created_at)}
+        </p>
       )}
 
       {reactable && (
