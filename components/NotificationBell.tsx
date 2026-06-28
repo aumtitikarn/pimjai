@@ -8,6 +8,7 @@ const REACTION_LABEL: Record<string, { emoji: string; label: string }> = {
   pat: { emoji: "🫶", label: "ตบบ่า" },
   hug: { emoji: "🤗", label: "กอดปลอบ" },
   agree: { emoji: "👍", label: "เห็นด้วย" },
+  reply: { emoji: "💬", label: "ตอบกลับ" },
 };
 
 /** Short Thai relative time, e.g. "5 นาทีที่แล้ว". */

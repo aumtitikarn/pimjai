@@ -1,7 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, Share2, Link as LinkIcon, Check, Unlock, X, Trash2, Clock } from "lucide-react";
+import {
+  Lock,
+  Share2,
+  Link as LinkIcon,
+  Check,
+  Unlock,
+  X,
+  Trash2,
+  Clock,
+  MessageCircle,
+  Send,
+} from "lucide-react";
 import { type Pin, type ReactionType, pinColor, pinEmoji } from "@/schemas/pinSchema";
 import { decryptMessage } from "@/utils/crypto";
 import { reverseGeocode } from "@/utils/geocode";
@@ -11,7 +22,21 @@ import {
   usePinReactions,
   useToggleReaction,
 } from "@/hooks/usePins";
+import { useReplies, useCreateReply, useDeleteReply } from "@/hooks/useReplies";
+import { useAuth, startLineLogin } from "@/hooks/useAuth";
+import { REPLY_MAX_LEN } from "@/schemas/replySchema";
 import ShareDialog from "./ShareDialog";
+
+/** Short Thai relative time, e.g. "5 นาทีที่แล้ว". */
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diff / 60_000);
+  if (min < 1) return "เมื่อสักครู่";
+  if (min < 60) return `${min} นาทีที่แล้ว`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} ชม.ที่แล้ว`;
+  return `${Math.floor(hr / 24)} วันที่แล้ว`;
+}
 
 /** Sent date + time, e.g. "28 มิ.ย. 69 14:30". */
 function formatSentAt(iso: string): string {
@@ -63,8 +88,27 @@ export default function PinPopup({ pin, onClose }: { pin: Pin; onClose?: () => v
   };
   const mine = reactions.data?.mine ?? [];
 
+  // Replies — public comments under the letter, members only. Loaded lazily once
+  // the letter is readable (a real, persisted id).
+  const { isAuthenticated } = useAuth();
+  const replies = useReplies(reactable ? pin.id : null);
+  const createReply = useCreateReply(pin.id);
+  const deleteReply = useDeleteReply(pin.id);
+  const [replyText, setReplyText] = useState("");
+  const [revealReply, setRevealReply] = useState(false);
+  const replyList = replies.data ?? [];
+
   const isUnlocked = !pin.is_locked || decrypted !== null;
   const displayText = pin.is_locked ? decrypted ?? "" : pin.text;
+
+  function handleSendReply() {
+    const text = replyText.trim();
+    if (!text || createReply.isPending) return;
+    createReply.mutate(
+      { text, reveal_identity: revealReply },
+      { onSuccess: () => setReplyText("") },
+    );
+  }
 
   function handleDelete() {
     deletePin.mutate(pin.id, { onSuccess: () => onClose?.() });
@@ -205,6 +249,101 @@ export default function PinPopup({ pin, onClose }: { pin: Pin; onClose?: () => v
               </button>
             );
           })}
+        </div>
+      )}
+
+      {reactable && isUnlocked && (
+        <div className="mt-3 border-t border-slate-200 pt-3">
+          <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+            <MessageCircle size={13} />
+            คำตอบกลับ
+            {replyList.length > 0 && (
+              <span className="text-slate-400">({replyList.length})</span>
+            )}
+          </div>
+
+          {replyList.length > 0 && (
+            <div className="mb-2 flex flex-col gap-2">
+              {replyList.map((r) => (
+                <div key={r.id} className="flex items-start gap-2">
+                  {r.author_avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={r.author_avatar}
+                      alt=""
+                      className="mt-0.5 h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-black/10"
+                    />
+                  ) : (
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-500">
+                      {r.author_name ? r.author_name.trim().charAt(0).toUpperCase() : "🕊️"}
+                    </span>
+                  )}
+                  <div className="min-w-0 flex-1 rounded-xl bg-slate-50 px-2.5 py-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-[11px] font-semibold text-slate-600">
+                        {r.author_name ?? "นิรนาม"}
+                      </span>
+                      <span className="flex shrink-0 items-center gap-1.5">
+                        <span className="text-[10px] text-slate-400">{timeAgo(r.created_at)}</span>
+                        {r.is_mine && (
+                          <button
+                            onClick={() => deleteReply.mutate(r.id)}
+                            aria-label="ลบคำตอบ"
+                            className="text-slate-300 transition hover:text-red-500"
+                          >
+                            <Trash2 size={11} />
+                          </button>
+                        )}
+                      </span>
+                    </div>
+                    <p className="break-words text-xs leading-snug text-slate-800">{r.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {isAuthenticated ? (
+            <div>
+              <div className="flex items-end gap-2">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  maxLength={REPLY_MAX_LEN}
+                  rows={2}
+                  placeholder="เขียนคำตอบกลับ..."
+                  className="w-full flex-1 resize-none rounded-lg border border-slate-300 bg-white/70 px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-fuchsia-400"
+                />
+                <button
+                  onClick={handleSendReply}
+                  disabled={!replyText.trim() || createReply.isPending}
+                  aria-label="ส่งคำตอบ"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white disabled:opacity-40"
+                >
+                  <Send size={14} />
+                </button>
+              </div>
+              <label className="mt-1.5 flex items-center gap-1.5 text-[11px] text-slate-500">
+                <input
+                  type="checkbox"
+                  checked={revealReply}
+                  onChange={(e) => setRevealReply(e.target.checked)}
+                  className="h-3 w-3 accent-fuchsia-500"
+                />
+                เปิดเผยชื่อของฉัน (ไม่ติ๊ก = ตอบแบบนิรนาม)
+              </label>
+              {createReply.isError && (
+                <p className="mt-1 text-[11px] text-red-500">ส่งคำตอบไม่สำเร็จ ลองใหม่อีกครั้ง</p>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={startLineLogin}
+              className="flex w-full items-center justify-center gap-1 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 transition hover:bg-slate-50"
+            >
+              เข้าสู่ระบบ LINE เพื่อตอบกลับ
+            </button>
+          )}
         </div>
       )}
 

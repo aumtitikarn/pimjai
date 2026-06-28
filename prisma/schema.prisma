@@ -49,9 +49,29 @@ model Pin {
   agreeCount Int @default(0) @map("agree_count")
 
   reactions PinReaction[]
+  replies   PinReply[]
 
   @@index([expiresAt])
   @@map("pins")
+}
+
+/// A public reply (comment) on a letter, posted by a signed-in member. Mirrors the
+/// pin identity model: ownerId stays private (drives delete control + skips
+/// self-notifications), while authorName/authorAvatar are opt-in public attribution
+/// (null = the replier stayed anonymous). Replies are plain text, never encrypted.
+model PinReply {
+  id           String   @id @default(uuid())
+  pinId        String   @map("pin_id")
+  text         String
+  ownerId      String?  @map("owner_id")
+  authorName   String?  @map("author_name")
+  authorAvatar String?  @map("author_avatar")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  pin Pin @relation(fields: [pinId], references: [id], onDelete: Cascade)
+
+  @@index([pinId, createdAt])
+  @@map("pin_replies")
 }
 
 /// One vote of one type on one letter by one voter. The composite primary key

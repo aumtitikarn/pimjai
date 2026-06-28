@@ -6,7 +6,7 @@ export interface AppNotification {
   id: string;
   pinId: string;
   actorName: string | null;
-  reaction: "pat" | "hug" | "agree";
+  reaction: "pat" | "hug" | "agree" | "reply";
   read: boolean;
   createdAt: string;
 }
